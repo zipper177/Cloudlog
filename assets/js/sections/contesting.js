@@ -988,7 +988,7 @@ function updateTableColumns(exchangetype) {
 	table.column(9).visible(showSerial, false);
 	table.column(10).visible(showGrid, false);
 	table.column(11).visible(showGrid, false);
-	table.columns.adjust().draw(false);
+	table.draw(false);
 }
 
 function updateContestStats(qsoData) {
