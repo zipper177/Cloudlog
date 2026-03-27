@@ -27,27 +27,35 @@
                 <a class="nav-link active" id="qsp-tab" data-bs-toggle="tab" href="#qso" role="tab" aria-controls="qso" aria-selected="true"><?php echo lang('gen_hamradio_qso'); ?></a>
               </li>
 
+              <?php if ($qso_fields['station_tab']): ?>
               <li class="nav-item">
                 <a class="nav-link" id="station-tab" data-bs-toggle="tab" href="#station" role="tab" aria-controls="station" aria-selected="false"><?php echo lang('gen_hamradio_station'); ?></a>
               </li>
+              <?php endif; ?>
 
+              <?php if ($qso_fields['general_tab']): ?>
               <li class="nav-item">
                 <a class="nav-link" id="general-tab" data-bs-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="false"><?php echo lang('general_word_general'); ?></a>
               </li>
+              <?php endif; ?>
 
-              <?php if ($sat_active) { ?>
+              <?php if ($sat_active && $qso_fields['satellite_tab']): ?>
                 <li class="nav-item">
                   <a class="nav-link" id="satellite-tab" data-bs-toggle="tab" href="#satellite" role="tab" aria-controls="satellite" aria-selected="false"><?php echo lang('general_word_satellite_short'); ?></a>
                 </li>
-              <?php } ?>
+              <?php endif; ?>
 
+              <?php if ($qso_fields['notes_tab']): ?>
               <li class="nav-item">
                 <a class="nav-link" id="notes-tab" data-bs-toggle="tab" href="#nav-notes" role="tab" aria-controls="notes" aria-selected="false"><?php echo lang('general_word_notes'); ?></a>
               </li>
+              <?php endif; ?>
 
+              <?php if ($qso_fields['qsl_tab']): ?>
               <li class="nav-item">
                 <a class="nav-link" id="qsl-tab" data-bs-toggle="tab" href="#qsl" role="tab" aria-controls="qsl" aria-selected="false"><?php echo lang('gen_hamradio_qsl'); ?></a>
               </li>
+              <?php endif; ?>
 
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="fav_item" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-star"></i></a>
@@ -198,6 +206,7 @@
                 </div>
 
                 <!-- Signal Report Information -->
+                <?php if ($qso_fields['rst']): ?>
                 <div class="row">
                   <div class="mb-3 col-md-6">
                     <label for="rst_sent"><?php echo lang('gen_hamradio_rsts'); ?></label>
@@ -209,21 +218,30 @@
                     <input type="text" class="form-control form-control-sm" name="rst_rcvd" id="rst_rcvd" value="59">
                   </div>
                 </div>
+                <?php else: ?>
+                <input type="hidden" name="rst_sent" value="59">
+                <input type="hidden" name="rst_rcvd" value="59">
+                <?php endif; ?>
 
+                <?php if ($qso_fields['name']): ?>
                 <div class="mb-3 row">
                   <label for="name" class="col-sm-3 col-form-label"><?php echo lang('general_word_name'); ?></label>
                   <div class="col-sm-9">
                     <input type="text" class="form-control form-control-sm" name="name" id="name" value="">
                   </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($qso_fields['qth']): ?>
                 <div class="mb-3 row">
                   <label for="qth" class="col-sm-3 col-form-label"><?php echo lang('general_word_location'); ?></label>
                   <div class="col-sm-9">
                     <input type="text" class="form-control form-control-sm" name="qth" id="qth" value="">
                   </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if ($qso_fields['locator']): ?>
                 <div class="mb-3 row">
                   <label for="locator" class="col-sm-3 col-form-label"><?php echo lang('gen_hamradio_gridsquare'); ?></label>
                   <div class="col-sm-9">
@@ -231,18 +249,22 @@
                     <small id="locator_info" class="form-text text-muted"></small>
                   </div>
                 </div>
+                <?php endif; ?>
 
                 <input type="hidden" name="distance" id="distance" value="0">
 
+                <?php if ($qso_fields['comment']): ?>
                 <div class="mb-3 row">
                   <label for="comment" class="col-sm-3 col-form-label"><?php echo lang('general_word_comment'); ?></label>
                   <div class="col-sm-9">
                     <input type="text" class="form-control form-control-sm" name="comment" id="comment" value="">
                   </div>
                 </div>
+                <?php endif; ?>
 
               </div>
 
+              <?php if ($qso_fields['station_tab']): ?>
               <!-- Station Panel Data -->
               <div class="tab-pane fade" id="station" role="tabpanel" aria-labelledby="station-tab">
                 <div class="mb-3">
@@ -272,16 +294,21 @@
                   </select>
                 </div>
 
+                <?php if ($qso_fields['freq_tx']): ?>
                 <div class="mb-3">
                   <label for="frequency"><?php echo lang('gen_hamradio_frequency'); ?></label>
                   <input type="text" class="form-control" id="frequency" name="freq_display" value="<?php echo $this->session->userdata('freq'); ?>" />
                 </div>
+                <?php endif; // freq_tx ?>
 
+                <?php if ($qso_fields['freq_rx']): ?>
                 <div class="mb-3">
                   <label for="frequency_rx"><?php echo lang('gen_hamradio_frequency_rx'); ?></label>
                   <input type="text" class="form-control" id="frequency_rx" name="freq_display_rx" value="<?php echo $this->session->userdata('freq_rx'); ?>" />
                 </div>
+                <?php endif; // freq_rx ?>
 
+                <?php if ($qso_fields['band_rx']): ?>
                 <div class="mb-3">
                   <label for="band_rx"><?php echo lang('gen_hamradio_band_rx'); ?></label>
 
@@ -302,7 +329,9 @@
                     ?>
                   </select>
                 </div>
+                <?php endif; // band_rx ?>
 
+                <?php if ($qso_fields['transmit_power']): ?>
                 <div class="mb-3">
                   <label for="transmit_power"><?php echo lang('gen_hamradio_transmit_power'); ?></label>
                   <input type="number" step="0.001" class="form-control" id="transmit_power" name="transmit_power" value="<?php if ($this->session->userdata('transmit_power')) {
@@ -312,16 +341,21 @@
                                                                                                                           } ?>" />
                   <small id="powerHelp" class="form-text text-muted"><?php echo lang('qso_transmit_power_helptext'); ?></small>
                 </div>
+                <?php endif; // transmit_power ?>
 
+                <?php if ($qso_fields['operator_callsign']): ?>
                 <div class="mb-3">
                   <label for="operator_callsign"><?php echo lang('qso_operator_callsign'); ?></label>
                   <input type="text" class="form-control" id="operator_callsign" name="operator_callsign" value="<?php if ($this->session->userdata('operator_callsign')) {
                                                                                                                     echo $this->session->userdata('operator_callsign');
                                                                                                                   } ?>" />
                 </div>
+                <?php endif; // operator_callsign ?>
 
               </div>
+              <?php endif; // station_tab ?>
 
+              <?php if ($qso_fields['general_tab']): ?>
               <!-- General Items -->
               <div class="tab-pane fade" id="general" role="tabpanel" aria-labelledby="general-tab">
                 <div class="mb-3">
@@ -427,7 +461,8 @@
                   </select>
                 </div>
 
-                <div class="mb-3">
+                <?php if ($qso_fields['usa_state']): ?>
+                <div class="mb-3" id="usa_state_field_wrapper" style="display:none">
                   <label for="input_usa_state"><?php echo lang('gen_hamradio_usa_state'); ?></label>
                   <select class="form-select" id="input_usa_state" name="usa_state">
                     <option value=""></option>
@@ -485,11 +520,13 @@
                   </select>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3" id="usa_county_field_wrapper" style="display:none">
                   <label for="stationCntyInput"><?php echo lang('gen_hamradio_county_reference'); ?></label>
                   <input disabled="disabled" class="form-control" id="stationCntyInput" type="text" name="county" value="" />
                 </div>
+                <?php endif; // usa_state ?>
 
+                <?php if ($qso_fields['iota']): ?>
                 <div class="mb-3">
                   <label for="iota_ref"><?php echo lang('gen_hamradio_iota_reference'); ?></label>
                   <select class="form-select" id="iota_ref" name="iota_ref">
@@ -503,7 +540,9 @@
 
                   </select>
                 </div>
+                <?php endif; // iota ?>
 
+                <?php if ($qso_fields['sota']): ?>
                 <div class="row">
                   <div class="mb-3 col-md-9">
                     <label for="sota_ref"><?php echo lang('gen_hamradio_sota_reference'); ?></label>
@@ -514,7 +553,9 @@
                     <small id="sota_info" class="badge text-bg-secondary"></small>
                   </div>
                 </div>
+                <?php endif; // sota ?>
 
+                <?php if ($qso_fields['wwff']): ?>
                 <div class="row">
                   <div class="mb-3 col-md-9">
                     <label for="wwff_ref"><?php echo lang('gen_hamradio_wwff_reference'); ?></label>
@@ -525,7 +566,9 @@
                     <small id="wwff_info" class="badge text-bg-secondary"></small>
                   </div>
                 </div>
+                <?php endif; // wwff ?>
 
+                <?php if ($qso_fields['pota']): ?>
                 <div class="row">
                   <div class="mb-3 col-md-9">
                     <label for="pota_ref"><?php echo lang('gen_hamradio_pota_reference'); ?></label>
@@ -536,7 +579,9 @@
                     <small id="pota_info" class="badge text-bg-secondary"></small>
                   </div>
                 </div>
+                <?php endif; // pota ?>
 
+                <?php if ($qso_fields['sig']): ?>
                 <div class="mb-3">
                   <label for="sig"><?php echo lang('gen_hamradio_sig'); ?></label>
                   <input class="form-control" id="sig" type="text" name="sig" value="" />
@@ -548,14 +593,19 @@
                   <input class="form-control" id="sig_info" type="text" name="sig_info" value="" />
                   <small id="sigInfoHelp" class="form-text text-muted"><?php echo lang('qso_sig_info_helptext'); ?></small>
                 </div>
+                <?php endif; // sig ?>
 
-                <div class="mb-3">
+                <?php if ($qso_fields['dok']): ?>
+                <div class="mb-3" id="dok_field_wrapper" style="display:none">
                   <label for="darc_dok"><?php echo lang('gen_hamradio_dok'); ?></label>
                   <input class="form-control" id="darc_dok" type="text" name="darc_dok" value="" />
                   <small id="dokHelp" class="form-text text-muted"><?php echo lang('qso_dok_helptext'); ?></small>
                 </div>
+                <?php endif; // dok ?>
               </div>
+              <?php endif; // general_tab ?>
 
+              <?php if ($sat_active && $qso_fields['satellite_tab']): ?>
               <!-- Satellite Panel -->
               <div class="tab-pane fade" id="satellite" role="tabpanel" aria-labelledby="satellite-tab">
                 <div class="mb-3">
@@ -574,7 +624,9 @@
                   <datalist id="satellite_modes" class="satellite_modes_list"></datalist>
                 </div>
               </div>
+              <?php endif; // satellite_tab ?>
 
+              <?php if ($qso_fields['notes_tab']): ?>
               <!-- Notes Panel Contents -->
               <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="notes-tab">
                 <div class="alert alert-info" role="alert">
@@ -585,8 +637,9 @@
                   <textarea type="text" class="form-control" id="notes" name="notes" rows="10"></textarea>
                 </div>
               </div>
+              <?php endif; // notes_tab ?>
 
-              <!-- QSL Tab -->
+              <?php if ($qso_fields['qsl_tab']): ?>\n              <!-- QSL Tab -->
               <div class="tab-pane fade" id="qsl" role="tabpanel" aria-labelledby="qsl-tab">
 
                 <div class="mb-3 row">
@@ -632,6 +685,7 @@
                   <div id="qslmsg_hide" style="display:none;"><?php echo $qslmsg; ?></div>
                 </div>
               </div>
+              <?php endif; // qsl_tab ?>
             </div>
 
 
@@ -942,6 +996,45 @@
 </div>
 
 <script>
+  // Show USA State & County fields only when DXCC is USA (291) or Alaska (6)
+  function toggleUsaFields() {
+    var stateWrapper = document.getElementById('usa_state_field_wrapper');
+    var countyWrapper = document.getElementById('usa_county_field_wrapper');
+    if (!stateWrapper) return;
+    var dxcc = document.getElementById('dxcc_id');
+    var isUsa = dxcc && (dxcc.value == '291' || dxcc.value == '6');
+    stateWrapper.style.display = isUsa ? '' : 'none';
+    countyWrapper.style.display = isUsa ? '' : 'none';
+    if (!isUsa) {
+      var stateSelect = document.getElementById('input_usa_state');
+      if (stateSelect) stateSelect.value = '';
+    }
+  }
+
+  // Show DOK field only when DXCC is Germany (230)
+  function toggleDokField() {
+    var wrapper = document.getElementById('dok_field_wrapper');
+    if (!wrapper) return;
+    var dxcc = document.getElementById('dxcc_id');
+    if (dxcc && dxcc.value == '230') {
+      wrapper.style.display = '';
+    } else {
+      wrapper.style.display = 'none';
+      var dokInput = document.getElementById('darc_dok');
+      if (dokInput) dokInput.value = '';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var dxccSelect = document.getElementById('dxcc_id');
+    if (dxccSelect) {
+      dxccSelect.addEventListener('change', toggleDokField);
+      dxccSelect.addEventListener('change', toggleUsaFields);
+      toggleDokField();
+      toggleUsaFields();
+    }
+  });
+
   // Handle the confirm leave button for the custom modal (vanilla JS to avoid jQuery dependency)
   document.addEventListener('DOMContentLoaded', function() {
     var confirmBtn = document.getElementById('confirmLeaveQso');
