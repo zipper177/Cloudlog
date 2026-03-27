@@ -745,7 +745,7 @@ function reset_fields() {
 	$('#qrz_info').text("");
 	$('#hamqth_info').text("");
 	$('#sota_info').text("");
-	$('#dxcc_id').val("");
+	$('#dxcc_id').val("").trigger('change');
 	$('#cqz').val("");
 	$('#name').val("");
 	$('#qth').val("");
@@ -929,7 +929,7 @@ $("#callsign").focusout(function() {
 					dok_selectize.clear();
 				}
 
-				$('#dxcc_id').val(result.dxcc.adif);
+	$('#dxcc_id').val(result.dxcc.adif).trigger('change');
 				$('#cqz').val(result.dxcc.cqz);
 				$('#ituz').val(result.dxcc.ituz);
 
@@ -1371,6 +1371,8 @@ function lookupQsoCallhistory(callsign) {
 }
 
 $('#dxcc_id').on('change', function() {
+	if (typeof toggleDokField === 'function') toggleDokField();
+	if (typeof toggleUsaFields === 'function') toggleUsaFields();
 	$.getJSON(base_url + 'index.php/logbook/jsonentity/' + $(this).val(), function (result) {
 		if (result.dxcc.name != undefined) {
 
@@ -1444,7 +1446,7 @@ function resetDefaultQSOFields() {
 	$('#lotw_info').removeClass("lotw_info_orange");
 	$('#qrz_info').text("");
 	$('#hamqth_info').text("");
-	$('#dxcc_id').val("");
+	$('#dxcc_id').val("").trigger('change');
 	$('#cqz').val("");
 	$("#locator").removeClass("workedGrid");
 	$("#locator").removeClass("confirmedGrid");

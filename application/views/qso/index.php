@@ -1025,15 +1025,12 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var dxccSelect = document.getElementById('dxcc_id');
-    if (dxccSelect) {
-      dxccSelect.addEventListener('change', toggleDokField);
-      dxccSelect.addEventListener('change', toggleUsaFields);
-      toggleDokField();
-      toggleUsaFields();
-    }
+  // Initialise on page load once jQuery is ready
+  $(function() {
+    toggleDokField();
+    toggleUsaFields();
   });
+
 
   // Handle the confirm leave button for the custom modal (vanilla JS to avoid jQuery dependency)
   document.addEventListener('DOMContentLoaded', function() {
