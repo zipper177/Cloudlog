@@ -1263,6 +1263,19 @@
         if (self.isRbn(spotter) && /\bCW\b/i.test(comment)) {
           $('#mode').val('CW');
         }
+        // QSY the radio if one is selected (same as main DX Cluster page)
+        var radioId = $('#radio').val();
+        if (radioId && radioId !== '0') {
+          var freqMHz = (freq / 1000000).toFixed(3);
+          var qsyMode = (self.isRbn(spotter) && /\bCW\b/i.test(comment)) ? 'CW' : null;
+          var body = { radio_id: radioId, frequency: freqMHz };
+          if (qsyMode) body.mode = qsyMode;
+          fetch('<?php echo site_url('dxcluster/qsy'); ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          }).catch(function() {});
+        }
         // Set callsign and trigger lookup
         $('#callsign').val(dx);
         $('#callsign').focusout();
