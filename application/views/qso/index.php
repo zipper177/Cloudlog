@@ -1,6 +1,7 @@
+<?php $manual = (int)($this->input->get('manual') ?? 0); ?>
 <div class="container qso_panel">
   <script language="javascript">
-    var qso_manual = "<?php echo $_GET['manual']; ?>";
+    var qso_manual = "<?php echo $manual; ?>";
     var text_error_timeoff_less_timeon = "<?php echo lang('qso_error_timeoff_less_timeon'); ?>";
     var lang_qso_title_previous_contacts = "<?php echo lang('qso_title_previous_contacts'); ?>";
     var lang_qso_title_times_worked_before = "<?php echo lang('qso_title_times_worked_before'); ?>";
@@ -19,7 +20,7 @@
     <div class="col-sm-5">
       <div class="card">
 
-        <form id="qso_input" method="post" action="<?php echo site_url('qso') . "?manual=" . $_GET['manual']; ?>" name="qsos" autocomplete="off" onReset="resetTimers(<?php echo $_GET['manual']; ?>);">
+        <form id="qso_input" method="post" action="<?php echo site_url('qso') . "?manual=" . $manual; ?>" name="qsos" autocomplete="off" onReset="resetTimers(<?php echo $manual; ?>);">
 
           <div class="card-header">
             <ul style="font-size: 15px;" class="nav nav-tabs card-header-tabs pull-right" id="myTab" role="tablist">
@@ -67,10 +68,10 @@
               </li>
 
               <li class="nav-item ms-auto d-flex align-items-center">
-                <?php if ($_GET['manual'] == 0) {
+                <?php if ($manual == 0) {
                   echo " <span class=\"badge text-bg-success\" style=\"cursor: pointer; font-size: 0.9rem; padding: 0.4rem 0.9rem;\" onclick=\"switchMode('" . site_url('qso') . "?manual=1')\" title=\"Switch to Manual mode\">LIVE</span>";
                 };
-                if ($_GET['manual'] == 1) {
+                if ($manual == 1) {
                   echo " <span class=\"badge text-bg-danger\" style=\"cursor: pointer; font-size: 0.9rem; padding: 0.4rem 0.9rem;\" onclick=\"switchMode('" . site_url('qso') . "?manual=0')\" title=\"Switch to LIVE mode\">POST</span>";
                 } ?>
               </li>
@@ -90,12 +91,12 @@
                                                                                                                                     echo $this->session->userdata('start_date');
                                                                                                                                   } else {
                                                                                                                                     echo date($user_date_format);
-                                                                                                                                  } ?>" <?php echo ($_GET['manual'] == 0 ? "disabled" : "");  ?> required>
+                                                                                                                                  } ?>" <?php echo ($manual == 0 ? "disabled" : "");  ?> required>
                     </div>
 
                     <div class="mb-3 col-md-3">
                       <label for="start_time"><?php echo lang('general_word_time_on'); ?></label>
-                      <?php if ($_GET['manual'] != 1) { ?>
+                      <?php if ($manual != 1) { ?>
                         <i id="reset_time" data-bs-toggle="tooltip" title="Reset start time" class="fas fa-stopwatch"></i>
                       <?php } else { ?>
                         <i id="reset_start_time" data-bs-toggle="tooltip" title="Reset start time" class="fas fa-stopwatch"></i>
@@ -103,23 +104,23 @@
                       <input type="text" class="form-control form-control-sm input_start_time" name="start_time" id="start_time" value="<?php if (($this->session->userdata('start_time') != NULL && ((time() - $this->session->userdata('time_stamp')) < 24 * 60 * 60))) {
                                                                                                                                           echo substr($this->session->userdata('start_time'), 0, 5);
                                                                                                                                         } else {
-                                                                                                                                          echo $_GET['manual'] == 0 ? date('H:i:s') : date('H:i');
-                                                                                                                                        } ?>" size="7" <?php echo ($_GET['manual'] == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
+                                                                                                                                          echo $manual == 0 ? date('H:i:s') : date('H:i');
+                                                                                                                                        } ?>" size="7" <?php echo ($manual == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
                     </div>
 
                     <div class="mb-3 col-md-3">
                       <label for="end_time"><?php echo lang('general_word_time_off'); ?></label>
-                      <?php if ($_GET['manual'] == 1) { ?>
+                      <?php if ($manual == 1) { ?>
                         <i id="reset_end_time" data-bs-toggle="tooltip" title="Reset end time" class="fas fa-stopwatch"></i>
                       <?php } ?>
                       <input type="text" class="form-control form-control-sm input_end_time" name="end_time" id="end_time" value="<?php if (($this->session->userdata('end_time') != NULL && ((time() - $this->session->userdata('time_stamp')) < 24 * 60 * 60))) {
                                                                                                                                     echo substr($this->session->userdata('end_time'), 0, 5);
                                                                                                                                   } else {
-                                                                                                                                    echo $_GET['manual'] == 0 ? date('H:i:s') : date('H:i');
-                                                                                                                                  } ?>" size="7" <?php echo ($_GET['manual'] == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
+                                                                                                                                    echo $manual == 0 ? date('H:i:s') : date('H:i');
+                                                                                                                                  } ?>" size="7" <?php echo ($manual == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
                     </div>
 
-                    <?php if ($_GET['manual'] == 0) { ?>
+                    <?php if ($manual == 0) { ?>
                       <input class="input_start_time" type="hidden" id="start_time" name="start_time" value="<?php echo date('H:i:s'); ?>" />
                       <input class="input_end_time" type="hidden" id="end_time" name="end_time" value="<?php echo date('H:i:s'); ?>" />
                       <input class="input_date" type="hidden" id="start_date" name="start_date" value="<?php echo date($user_date_format); ?>" />
@@ -134,22 +135,22 @@
                                                                                                                                     echo $this->session->userdata('start_date');
                                                                                                                                   } else {
                                                                                                                                     echo date($user_date_format);
-                                                                                                                                  } ?>" <?php echo ($_GET['manual'] == 0 ? "disabled" : "");  ?> required>
+                                                                                                                                  } ?>" <?php echo ($manual == 0 ? "disabled" : "");  ?> required>
                     </div>
 
                     <div class="mb-3 col-md-6">
                       <label for="start_time"><?php echo lang('general_word_time'); ?></label>
-                      <?php if ($_GET['manual'] == 1) { ?>
+                      <?php if ($manual == 1) { ?>
                         <i id="reset_start_time" data-bs-toggle="tooltip" title="Reset start time" class="fas fa-stopwatch"></i>
                       <?php } ?>
                       <input type="text" class="form-control form-control-sm input_start_time" name="start_time" id="start_time" value="<?php if (($this->session->userdata('start_time') != NULL && ((time() - $this->session->userdata('time_stamp')) < 24 * 60 * 60))) {
                                                                                                                                           echo substr($this->session->userdata('start_time'), 0, 5);
                                                                                                                                         } else {
-                                                                                                                                          echo $_GET['manual'] == 0 ? date('H:i:s') : date('H:i');
-                                                                                                                                        } ?>" size="7" <?php echo ($_GET['manual'] == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
+                                                                                                                                          echo $manual == 0 ? date('H:i:s') : date('H:i');
+                                                                                                                                        } ?>" size="7" <?php echo ($manual == 0 ? "disabled" : "");  ?> required pattern="[0-2][0-9]:[0-5][0-9]">
                     </div>
 
-                    <?php if ($_GET['manual'] == 0) { ?>
+                    <?php if ($manual == 0) { ?>
                       <input class="input_start_time" type="hidden" id="start_time" name="start_time" value="<?php echo date('H:i:s'); ?>" />
                       <input class="input_date" type="hidden" id="start_date" name="start_date" value="<?php echo date($user_date_format); ?>" />
                     <?php } ?>
