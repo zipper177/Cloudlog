@@ -953,7 +953,7 @@
             <?php if ($qso_fields['dxcluster_tab']): ?>
             <div class="tab-pane fade" id="dx-cluster-pane" role="tabpanel" aria-labelledby="dx-cluster-tab">
               <div class="d-flex align-items-center gap-2 flex-wrap pt-2 pb-1 border-bottom mb-1">
-                <span id="qso-cluster-status" class="badge bg-secondary" style="font-size:0.7rem;">Disconnected</span>
+                <span id="qso-cluster-status" class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Disconnected from DX Cluster" style="font-size:0.85rem; cursor:default;"><i id="qso-cluster-status-icon" class="fas fa-circle"></i></span>
                 <select id="qso-cluster-band" class="form-select form-select-sm" style="width:auto;font-size:0.8rem;">
                   <option value="all">All Bands</option>
                   <option value="160m">160m</option>
@@ -1379,10 +1379,21 @@
     },
 
     setStatus: function(text, type) {
-      var el = document.getElementById('qso-cluster-status');
-      if (!el) return;
-      el.textContent = text;
+      var el   = document.getElementById('qso-cluster-status');
+      var icon = document.getElementById('qso-cluster-status-icon');
+      if (!el || !icon) return;
+      var stateMap = {
+        'Connected':      { icon: 'fas fa-circle',               tip: 'Connected to DX Cluster' },
+        'Connecting...':  { icon: 'fas fa-circle-notch fa-spin', tip: 'Connecting to DX Cluster...' },
+        'Reconnecting...':{ icon: 'fas fa-circle-notch fa-spin', tip: 'Reconnecting to DX Cluster...' },
+        'Error':          { icon: 'fas fa-circle-exclamation',   tip: 'DX Cluster connection error' },
+        'Disconnected':   { icon: 'fas fa-circle',               tip: 'Disconnected from DX Cluster' },
+      };
+      var state = stateMap[text] || { icon: 'fas fa-circle', tip: text };
       el.className = 'badge bg-' + type + (type === 'warning' ? ' text-dark' : '');
+      icon.className = state.icon;
+      el.setAttribute('title', state.tip);
+      el.setAttribute('data-bs-original-title', state.tip);
     },
 
     addSpot: function(spot) {
