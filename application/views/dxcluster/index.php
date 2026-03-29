@@ -230,6 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
         modeFilterSelect.value = selectedMode;
     }
 
+    // Apply CW lock in case CW mode was saved from a previous session
+    applyCwRbnLock();
+
     // Load new DXCC filter preference from localStorage
     const savedNewDxccPreference = localStorage.getItem('cloudlog_newDxccFilter');
     if (savedNewDxccPreference !== null) {
@@ -255,12 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modeFilterSelect.addEventListener('change', function() {
         selectedMode = this.value;
         localStorage.setItem('cloudlog_modeFilter', selectedMode);
-        // CW spots come primarily from RBN skimmers — auto-show them
-        if (selectedMode === 'cw' && hideRbnSpots) {
-            hideRbnSpots = false;
-            hideRbnCheckbox.checked = false;
-            localStorage.setItem('cloudlog_hideRbnSpots', 'false');
-        }
+        applyCwRbnLock();
         updateTable();
     });
 
@@ -271,6 +269,23 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTable();
     });
     
+    // When CW mode is active, Hide RBN must be off (most CW spots ARE RBN).
+    // Disables the checkbox so the user cannot re-hide RBN while on CW.
+    function applyCwRbnLock() {
+        if (selectedMode === 'cw') {
+            if (hideRbnSpots) {
+                hideRbnSpots = false;
+                hideRbnCheckbox.checked = false;
+                localStorage.setItem('cloudlog_hideRbnSpots', 'false');
+            }
+            hideRbnCheckbox.disabled = true;
+            hideRbnCheckbox.title = 'Cannot hide RBN while CW mode is selected';
+        } else {
+            hideRbnCheckbox.disabled = false;
+            hideRbnCheckbox.title = '';
+        }
+    }
+
     // Shared utility aliases (implementations in assets/js/dxcluster-utils.js)
     const isRbnSpot            = DXCluster.isRbnSpot;
     const getBandFromFrequency = DXCluster.getBandFromFrequency;

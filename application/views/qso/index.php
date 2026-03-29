@@ -1200,6 +1200,9 @@
         if (newDxccSel) newDxccSel.value = savedNewDxcc;
       }
 
+      // Apply CW lock after all filters are restored
+      this.applyCwRbnLock();
+
       var self = this;
       var rbnEl = document.getElementById('qso-cluster-hide-rbn');
       if (rbnEl) {
@@ -1213,6 +1216,13 @@
       var bandEl = document.getElementById('qso-cluster-band');
       if (bandEl) {
         bandEl.addEventListener('change', function(e) {
+          // Manual band change while Track Band is on — disengage tracking
+          if (self.trackBand) {
+            self.trackBand = false;
+            var trackChk = document.getElementById('qso-cluster-track-band');
+            if (trackChk) trackChk.checked = false;
+            localStorage.setItem('cloudlog_clusterTrackBand', 'false');
+          }
           self.selectedBand = e.target.value;
           localStorage.setItem('cloudlog_bandFilter', self.selectedBand);
           self.renderTable();
@@ -1224,13 +1234,7 @@
         modeEl.addEventListener('change', function(e) {
           self.selectedMode = e.target.value;
           localStorage.setItem('cloudlog_modeFilter', self.selectedMode);
-          // CW spots come primarily from RBN — auto-show them
-          if (self.selectedMode === 'cw' && self.hideRbn) {
-            self.hideRbn = false;
-            var rbn = document.getElementById('qso-cluster-hide-rbn');
-            if (rbn) rbn.checked = false;
-            localStorage.setItem('cloudlog_hideRbnSpots', 'false');
-          }
+          self.applyCwRbnLock();
           self.renderTable();
         });
       }
@@ -1421,6 +1425,26 @@
       if (mins < 1) return 'now';
       if (mins < 60) return mins + 'm';
       return Math.floor(mins / 60) + 'h';
+    },
+
+    // When CW mode is active, Hide RBN must be off (most CW spots ARE RBN).
+    // Disables the checkbox so the user cannot re-hide RBN while on CW.
+    applyCwRbnLock: function() {
+      var rbn = document.getElementById('qso-cluster-hide-rbn');
+      if (!rbn) return;
+      if (this.selectedMode === 'cw') {
+        // Force off and disable
+        if (this.hideRbn) {
+          this.hideRbn = false;
+          rbn.checked = false;
+          localStorage.setItem('cloudlog_hideRbnSpots', 'false');
+        }
+        rbn.disabled = true;
+        rbn.title = 'Cannot hide RBN while CW mode is selected';
+      } else {
+        rbn.disabled = false;
+        rbn.title = '';
+      }
     },
 
     syncBandFromRadio: function() {
