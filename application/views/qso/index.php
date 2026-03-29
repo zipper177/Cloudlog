@@ -966,10 +966,22 @@
                   <option value="23cm">23cm</option>
                   <option value="ghz">GHz+</option>
                 </select>
+                <select id="qso-cluster-mode" class="form-select form-select-sm" style="width:auto;font-size:0.8rem;">
+                  <option value="all">All Modes</option>
+                  <option value="cw">CW</option>
+                  <option value="ssb">SSB</option>
+                  <option value="digi">Digital</option>
+                </select>
                 <div class="form-check mb-0">
                   <input class="form-check-input" type="checkbox" id="qso-cluster-hide-rbn" checked>
                   <label class="form-check-label" for="qso-cluster-hide-rbn" style="font-size:0.8rem;">Hide RBN</label>
                 </div>
+                <select id="qso-cluster-new-dxcc" class="form-select form-select-sm" style="width:auto;font-size:0.8rem;">
+                  <option value="all">All Spots</option>
+                  <option value="new_any">New DXCC or Band</option>
+                  <option value="new_dxcc">New DXCC only</option>
+                  <option value="new_band">New Band only</option>
+                </select>
                 <div class="form-check mb-0">
                   <input class="form-check-input" type="checkbox" id="qso-cluster-track-band">
                   <label class="form-check-label" for="qso-cluster-track-band" style="font-size:0.8rem;">Track Band</label>
@@ -1130,6 +1142,7 @@
 </script>
 
 <?php if ($qso_fields['dxcluster_tab']): ?>
+<script src="<?php echo base_url(); ?>assets/js/dxcluster-utils.js"></script>
 <script>
 (function() {
   'use strict';
@@ -1143,6 +1156,8 @@
     hideRbn: true,
     trackBand: false,
     selectedBand: 'all',
+    selectedMode: 'all',
+    selectedNewDxcc: 'all',
     dataTable: null,
 
     init: function() {
@@ -1171,6 +1186,20 @@
         if (bandSel) bandSel.value = savedBand;
       }
 
+      var savedMode = localStorage.getItem('cloudlog_modeFilter');
+      if (savedMode !== null) {
+        this.selectedMode = savedMode;
+        var modeSel = document.getElementById('qso-cluster-mode');
+        if (modeSel) modeSel.value = savedMode;
+      }
+
+      var savedNewDxcc = localStorage.getItem('cloudlog_newDxccFilter');
+      if (savedNewDxcc !== null) {
+        this.selectedNewDxcc = savedNewDxcc;
+        var newDxccSel = document.getElementById('qso-cluster-new-dxcc');
+        if (newDxccSel) newDxccSel.value = savedNewDxcc;
+      }
+
       var self = this;
       var rbnEl = document.getElementById('qso-cluster-hide-rbn');
       if (rbnEl) {
@@ -1186,6 +1215,31 @@
         bandEl.addEventListener('change', function(e) {
           self.selectedBand = e.target.value;
           localStorage.setItem('cloudlog_bandFilter', self.selectedBand);
+          self.renderTable();
+        });
+      }
+
+      var modeEl = document.getElementById('qso-cluster-mode');
+      if (modeEl) {
+        modeEl.addEventListener('change', function(e) {
+          self.selectedMode = e.target.value;
+          localStorage.setItem('cloudlog_modeFilter', self.selectedMode);
+          // CW spots come primarily from RBN — auto-show them
+          if (self.selectedMode === 'cw' && self.hideRbn) {
+            self.hideRbn = false;
+            var rbn = document.getElementById('qso-cluster-hide-rbn');
+            if (rbn) rbn.checked = false;
+            localStorage.setItem('cloudlog_hideRbnSpots', 'false');
+          }
+          self.renderTable();
+        });
+      }
+
+      var newDxccEl = document.getElementById('qso-cluster-new-dxcc');
+      if (newDxccEl) {
+        newDxccEl.addEventListener('change', function(e) {
+          self.selectedNewDxcc = e.target.value;
+          localStorage.setItem('cloudlog_newDxccFilter', self.selectedNewDxcc);
           self.renderTable();
         });
       }
@@ -1341,29 +1395,19 @@
     },
 
     isRbn: function(spotter) {
-      // RBN skimmers always end with -# (literal hash), not just any numeric SSID
-      return spotter && /\-#+$/.test(spotter.toString().trim());
+      return DXCluster.isRbnSpot(spotter);
+    },
+
+    detectModeFromFrequency: function(freqKhz) {
+      return DXCluster.detectModeFromFrequency(freqKhz);
+    },
+
+    detectMode: function(spot) {
+      return DXCluster.detectMode(spot);
     },
 
     getBand: function(freqKhz) {
-      var f = parseFloat(freqKhz);
-      if (f >= 1800 && f <= 2000) return '160m';
-      if (f >= 3500 && f <= 4000) return '80m';
-      if (f >= 5250 && f <= 5450) return '60m';
-      if (f >= 7000 && f <= 7300) return '40m';
-      if (f >= 10100 && f <= 10150) return '30m';
-      if (f >= 14000 && f <= 14350) return '20m';
-      if (f >= 18068 && f <= 18168) return '17m';
-      if (f >= 21000 && f <= 21450) return '15m';
-      if (f >= 24890 && f <= 24990) return '12m';
-      if (f >= 28000 && f <= 29700) return '10m';
-      if (f >= 50000 && f <= 54000) return '6m';
-      if (f >= 70000 && f <= 71000) return '4m';
-      if (f >= 144000 && f <= 148000) return '2m';
-      if (f >= 420000 && f <= 450000) return '70cm';
-      if (f >= 1240000 && f <= 1300000) return '23cm';
-      if (f >= 2300000) return 'ghz';
-      return 'unknown';
+      return DXCluster.getBandFromFrequency(freqKhz);
     },
 
     formatTime: function(t) {
@@ -1419,6 +1463,15 @@
         .filter(function(s) {
           if (self.hideRbn && self.isRbn(s.spotter)) return false;
           if (self.selectedBand !== 'all' && self.getBand(s.frequency) !== self.selectedBand) return false;
+          if (self.selectedMode !== 'all' && self.detectMode(s) !== self.selectedMode) return false;
+          if (self.selectedNewDxcc !== 'all') {
+            var st = self.workedStatus[s.dx];
+            if (!st) return false; // Hold back until status is known
+            if (!st.dxcc) return false;
+            if (self.selectedNewDxcc === 'new_any')  return !st.dxcc_worked_overall || !st.dxcc_worked_on_band;
+            if (self.selectedNewDxcc === 'new_dxcc') return !st.dxcc_worked_overall;
+            if (self.selectedNewDxcc === 'new_band')  return st.dxcc_worked_overall && !st.dxcc_worked_on_band;
+          }
           return true;
         })
         .sort(function(a, b) { return b.receivedAt - a.receivedAt; })
@@ -1474,6 +1527,7 @@
       for (var spot of this.spots.values()) {
         if (this.hideRbn && this.isRbn(spot.spotter)) continue;
         if (this.selectedBand !== 'all' && this.getBand(spot.frequency) !== this.selectedBand) continue;
+        if (this.selectedMode !== 'all' && this.detectMode(spot) !== this.selectedMode) continue;
         if (this.workedStatus[spot.dx]) continue;
         if (seen.has(spot.dx)) continue;
         seen.add(spot.dx);
