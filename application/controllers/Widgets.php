@@ -48,7 +48,8 @@ class Widgets extends CI_Controller {
 
 	// Embeddable "on air" status widget - pass a callsign to get current radio/satellite status.
 	// Embed via: <iframe src="/widgets/on_air/M0ABC" width="300" height="120" frameborder="0"></iframe>
-	public function on_air($callsign = null) {
+	// Optionally override the displayed callsign: <iframe src="/widgets/on_air/M0ABC/GB2XXX" ...></iframe>
+	public function on_air($callsign = null, $display_callsign = null) {
 		if ($callsign == null) {
 			show_error('Please provide a callsign. Usage: widgets/on_air/YOURCALL');
 		}
@@ -64,14 +65,17 @@ class Widgets extends CI_Controller {
 
 		$this->load->model('cat');
 		$data['radio_status'] = $this->cat->recent_status_by_user_id($user->user_id);
-		$data['callsign'] = strtoupper($this->security->xss_clean($callsign));
+		$data['callsign'] = strtoupper($this->security->xss_clean(
+			$display_callsign !== null ? $display_callsign : $callsign
+		));
 
 		$this->load->view('widgets/on_air', $data);
 	}
 
 	// Embeddable "on air" status badge as an SVG image.
 	// Embed via: <img src="/widgets/on_air_image/M0ABC" alt="M0ABC on air status">
-	public function on_air_image($callsign = null) {
+	// Optionally override the displayed callsign: <img src="/widgets/on_air_image/M0ABC/GB2XXX" ...>
+	public function on_air_image($callsign = null, $display_callsign = null) {
 		if ($callsign == null) {
 			show_error('Please provide a callsign. Usage: widgets/on_air_image/YOURCALL');
 		}
@@ -84,7 +88,9 @@ class Widgets extends CI_Controller {
 		}
 
 		$user    = $user_result->row();
-		$callsign = strtoupper($this->security->xss_clean($callsign));
+		$callsign = strtoupper($this->security->xss_clean(
+			$display_callsign !== null ? $display_callsign : $callsign
+		));
 
 		$this->load->model('cat');
 		$radio_status = $this->cat->recent_status_by_user_id($user->user_id);
