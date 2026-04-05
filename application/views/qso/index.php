@@ -26,7 +26,7 @@
     <div class="col-sm-5">
       <div class="card">
 
-        <form id="qso_input" method="post" action="<?php echo site_url('qso') . "?manual=" . $manual; ?>" name="qsos" autocomplete="off" onReset="resetTimers(<?php echo $manual; ?>);">
+        <form id="qso_input" method="post" action="<?php echo site_url('qso') . "?manual=" . $manual; ?>" data-ajax-save-url="<?php echo site_url('qso/ajax_saveqso'); ?>" name="qsos" autocomplete="off" onReset="resetTimers(<?php echo $manual; ?>);">
 
           <div class="card-header">
             <ul style="font-size: 15px;" class="nav nav-tabs card-header-tabs pull-right" id="myTab" role="tablist">
@@ -710,6 +710,8 @@
 
     <div class="col-sm-7">
 
+      <div id="notice-alerts-container">
+
       <?php if ($notice) { ?>
         <div id="notice-alerts" class="alert alert-info" role="alert">
           <?php echo $notice; ?>
@@ -721,6 +723,8 @@
           <?php echo validation_errors(); ?>
         </div>
       <?php } ?>
+
+      </div>
 
       <!-- QSO Map -->
       <div class="card qso-map">

@@ -1,5 +1,6 @@
 var lastCallsignUpdated=""
 var callsignLookupRequestId = 0;
+var isSubmitting = false;
 
 function hasFieldValue(value) {
 	return value !== null && value !== undefined && String(value).trim() !== "";
@@ -7,6 +8,29 @@ function hasFieldValue(value) {
 
 function normalizeFieldValue(value) {
 	return String(value ?? "").trim();
+}
+
+function showQsoNotice(message, alertType) {
+	var safeType = alertType || 'info';
+	var $container = $('#notice-alerts-container');
+	if ($container.length === 0) {
+		$container = $('<div id="notice-alerts-container"></div>');
+		var $rightColumn = $('.col-sm-7').first();
+		var $mapCard = $rightColumn.find('.qso-map').first();
+		if ($mapCard.length > 0) {
+			$container.insertBefore($mapCard);
+		} else if ($rightColumn.length > 0) {
+			$rightColumn.prepend($container);
+		}
+	}
+
+	$container.html('<div id="notice-alerts" class="alert alert-' + safeType + '" role="alert">' + message + '</div>');
+
+	setTimeout(function() {
+		$('#notice-alerts').fadeOut(300, function() {
+			$(this).remove();
+		});
+	}, 5000);
 }
 
 function shouldReplaceLookupField($field, incomingValue, fieldKey, approval) {
@@ -541,11 +565,11 @@ var favs={};
 	});
 
 	// Test Consistency value on submit form //
-	var isSubmitting = false;
 	$("#qso_input").off('submit').on('submit', function(e){
+		e.preventDefault();
+
 		// Prevent double submission
 		if (isSubmitting) {
-			e.preventDefault();
 			return false;
 		}
 		
@@ -557,6 +581,10 @@ var favs={};
 		if (_submit) {
 			// Mark as submitting and disable the submit button
 			isSubmitting = true;
+			$('#qso_input .warningOnSubmit').hide();
+			$('#qso_input .warningOnSubmit_txt').empty();
+
+			var $form = $(this);
 			var submitBtn = $(this).find('button[type="submit"]');
 			var originalText = submitBtn.data('original-text');
 			if (!originalText) {
@@ -566,9 +594,69 @@ var favs={};
 			}
 			submitBtn.prop('disabled', true);
 			submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+
+			var ajaxSaveUrl = $form.data('ajax-save-url') || (base_url + 'index.php/qso/ajax_saveqso');
+
+			$.ajax({
+				url: ajaxSaveUrl,
+				type: 'POST',
+				data: $form.serialize(),
+				dataType: 'json',
+				success: function(response) {
+					if (response && response.status === 'ok') {
+						var savedCallsign = normalizeFieldValue($('#callsign').val()).toUpperCase();
+						var saveMessage = (response && response.message) ? response.message : 'QSO Added';
+						if (savedCallsign) {
+							saveMessage += ': <strong>' + savedCallsign + '</strong>';
+						}
+
+						var qsoFormElement = document.getElementById('qso_input');
+						if (qsoFormElement) {
+							qsoFormElement.reset();
+						}
+
+						reset_fields();
+						showQsoNotice(saveMessage, 'info');
+
+						if (typeof htmx !== 'undefined' && document.getElementById('qso-last-table')) {
+							htmx.ajax('GET', base_url + 'index.php/qso/component_past_contacts', {
+								target: '#qso-last-table',
+								swap: 'outerHTML'
+							});
+						}
+
+						$('#callsign').focus();
+						$('#qso_input').data('initialForm', $('#qso_input').serialize());
+					} else {
+						var warningMessage = (response && response.message) ? response.message : 'Unable to save QSO. Please try again.';
+
+						if (response && response.validation_errors) {
+							var validationMessages = [];
+							$.each(response.validation_errors, function(_, msg) {
+								if (msg) {
+									validationMessages.push(msg);
+								}
+							});
+							if (validationMessages.length > 0) {
+								warningMessage = validationMessages.join('<br>');
+							}
+						}
+
+						$('#qso_input .warningOnSubmit_txt').html(warningMessage);
+						$('#qso_input .warningOnSubmit').show();
+					}
+				},
+				error: function() {
+					$('#qso_input .warningOnSubmit_txt').html('Unable to save QSO due to a network or server error.');
+					$('#qso_input .warningOnSubmit').show();
+				},
+				complete: function() {
+					resetSubmissionState();
+				}
+			});
 		}
 		
-		return _submit;
+		return false;
 	})
 	
 	// Prevent Enter key from causing double submissions

@@ -162,6 +162,77 @@ class QSO extends CI_Controller {
         $this->logbook_model->create_qso();
     }
 
+    /*
+     * AJAX endpoint for QSO entry form to avoid full page reload on save.
+     */
+    public function ajax_saveqso() {
+        $this->load->library('form_validation');
+        $this->load->model('logbook_model');
+
+        $this->form_validation->set_rules('start_date', 'Date', 'required');
+        $this->form_validation->set_rules('start_time', 'Time', 'required');
+        $this->form_validation->set_rules('callsign', 'Callsign', 'required');
+        $this->form_validation->set_rules('band', 'Band', 'required');
+        $this->form_validation->set_rules('mode', 'Mode', 'required');
+        $this->form_validation->set_rules('locator', 'Locator', 'callback_check_locator');
+
+        if ($this->form_validation->run() == FALSE) {
+            $validation_errors = array();
+            $fields = array('start_date', 'start_time', 'callsign', 'band', 'mode', 'locator');
+            foreach ($fields as $field) {
+                $field_error = form_error($field, '', '');
+                if (!empty($field_error)) {
+                    $validation_errors[$field] = strip_tags($field_error);
+                }
+            }
+
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array(
+                    'status' => 'error',
+                    'message' => 'Please correct the form errors and try again.',
+                    'validation_errors' => $validation_errors,
+                )));
+        }
+
+        $qso_data = array(
+            'start_date' => $this->input->post('start_date'),
+            'start_time' => $this->input->post('start_time'),
+            'end_time' => $this->input->post('end_time'),
+            'time_stamp' => time(),
+            'band' => $this->input->post('band'),
+            'band_rx' => $this->input->post('band_rx'),
+            'freq' => $this->input->post('freq_display'),
+            'freq_rx' => $this->input->post('freq_display_rx'),
+            'mode' => $this->input->post('mode'),
+            'sat_name' => $this->input->post('sat_name'),
+            'sat_mode' => $this->input->post('sat_mode'),
+            'prop_mode' => $this->input->post('prop_mode'),
+            'radio' => $this->input->post('radio'),
+            'station_profile_id' => $this->input->post('station_profile'),
+            'operator_callsign' => $this->input->post('operator_callsign'),
+            'transmit_power' => $this->input->post('transmit_power')
+        );
+
+        setcookie("radio", $qso_data['radio'], time() + 3600 * 24 * 99);
+        setcookie("station_profile_id", $qso_data['station_profile_id'], time() + 3600 * 24 * 99);
+
+        $this->session->set_userdata($qso_data);
+
+        if ($this->input->post('sat_name')) {
+            $this->session->set_userdata('prop_mode', 'SAT');
+        }
+
+        $this->logbook_model->create_qso();
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array(
+                'status' => 'ok',
+                'message' => 'QSO Added',
+            )));
+    }
+
 	function edit() {
 
 		$this->load->model('logbook_model');
