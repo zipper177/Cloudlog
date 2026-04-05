@@ -893,6 +893,11 @@ function reset_fields() {
 	$('.dxccsummary').remove();
 	$('#timesWorked').html(lang_qso_title_previous_contacts);
 	renderQsoCallhistoryPanel([], 'Type a callsign to see membership details from your uploaded call history files.');
+
+	// Reapply default RST values for the current mode (e.g., CW => 599).
+	if (typeof setRst === 'function') {
+		setRst($('.mode').val());
+	}
 }
 
 function resetTimers(manual) {
