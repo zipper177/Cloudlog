@@ -619,6 +619,15 @@ var favs={};
 					if (response && response.status === 'ok') {
 						var savedCallsign = normalizeFieldValue($('#callsign').val()).toUpperCase();
 						var savedBand = normalizeFieldValue($('#band').val());
+						var savedMode = normalizeFieldValue($('#mode').val());
+						var savedSatName = normalizeFieldValue($('#sat_name').val());
+						var savedSatMode = normalizeFieldValue($('#sat_mode').val());
+						var postSaveDefaults = {
+							band: savedBand,
+							mode: savedMode,
+							sat_name: savedSatName,
+							sat_mode: savedSatMode
+						};
 						var saveMessage = (response && response.message) ? response.message : 'QSO Added';
 						if (savedCallsign && savedBand) {
 							saveMessage += ': <strong>' + escapeNoticeValue(savedCallsign) + ' on ' + escapeNoticeValue(savedBand) + '</strong>';
@@ -634,6 +643,7 @@ var favs={};
 						}
 
 						reset_fields();
+						reapplyPostSaveDefaults(postSaveDefaults);
 						showQsoNotice(saveMessage, 'info');
 
 						if (typeof htmx !== 'undefined' && document.getElementById('qso-last-table')) {
@@ -897,6 +907,32 @@ function reset_fields() {
 	// Reapply default RST values for the current mode (e.g., CW => 599).
 	if (typeof setRst === 'function') {
 		setRst($('.mode').val());
+	}
+}
+
+function reapplyPostSaveDefaults(defaults) {
+	if (!defaults) {
+		return;
+	}
+
+	if (typeof defaults.band !== 'undefined') {
+		$('#band').val(defaults.band);
+	}
+
+	if (typeof defaults.mode !== 'undefined') {
+		$('#mode').val(defaults.mode);
+	}
+
+	if (typeof defaults.sat_name !== 'undefined') {
+		$('#sat_name').val(defaults.sat_name);
+	}
+
+	if (typeof defaults.sat_mode !== 'undefined') {
+		$('#sat_mode').val(defaults.sat_mode);
+	}
+
+	if (typeof setRst === 'function') {
+		setRst($('#mode').val());
 	}
 }
 
