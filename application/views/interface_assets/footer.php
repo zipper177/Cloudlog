@@ -2236,6 +2236,8 @@ $(document).ready(function() {
         const resetUI = () => {
             $("#sat_name, #sat_mode, #frequency, #frequency_rx, #band_rx").val("");
             $("#selectPropagation").val($("#selectPropagation option:first").val());
+            // Clear CAT value cache so re-selecting a radio with identical values still repopulates fields.
+            $('#frequency, #frequency_rx, #sat_name, #sat_mode, #transmit_power, #selectPropagation, #mode').removeData('catValue');
             $(".radio_timeout_error").remove();
         };
 
