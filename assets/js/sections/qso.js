@@ -1182,12 +1182,24 @@ $("#callsign").focusout(function() {
 				if($('#iota_ref').val() == "") {
 					$('#iota_ref').val(result.callsign_iota);
 				}
-				// Hide the last QSO table
-				$('#qso-last-table').hide();
-				$('#partial_view').show();
+				// Show lookup details and keep the default previous contacts table hidden.
+				setPreviousContactsPanelState(true);
 				/* display past QSOs */
 				$('#partial_view').html(result.partial);
 
+
+function setPreviousContactsPanelState(showLookupDetails) {
+	if (showLookupDetails) {
+		$('#qso-last-table').hide();
+		$('#qso-last-table').next('small').hide();
+		$('#partial_view').show();
+		return;
+	}
+
+	$('#qso-last-table').show();
+	$('#qso-last-table').next('small').show();
+	$('#partial_view').hide();
+}
 				// Get DXX Summary
 				getDxccResult(result.dxcc.adif, convert_case(result.dxcc.entity));
 			}
@@ -1209,9 +1221,27 @@ function resetToPreviousContactsTab() {
 		var previousContactsTab = new bootstrap.Tab(document.getElementById('previous-contacts-tab'));
 		previousContactsTab.show();
 	}
-	// Show the previous contacts table
-	$('#qso-last-table').show();
-	$('#partial_view').hide();
+	// Show the default previous contacts table and hide lookup details.
+	setPreviousContactsPanelState(false);
+}
+
+// Re-apply visibility state after HTMX updates the previous contacts markup.
+if (typeof htmx !== 'undefined' && document.body) {
+	document.body.addEventListener('htmx:afterSwap', function(evt) {
+		var detail = evt && evt.detail ? evt.detail : null;
+		var target = detail && detail.target ? detail.target : null;
+		if (!target) {
+			return;
+		}
+
+		if (target.id !== 'qso-last-table' && target.id !== 'qso-last-table-content') {
+			return;
+		}
+
+		if ($('#partial_view').is(':visible')) {
+			setPreviousContactsPanelState(true);
+		}
+	});
 }
 
 // If a radio is selected, prefer current CAT values over stale form defaults.
