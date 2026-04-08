@@ -815,6 +815,21 @@
 												</select>
 												<small id="SelectDateFormatHelp" class="form-text text-muted"><?php echo lang('account_quicklog_enter_hint'); ?></small>
 											</div>
+
+											<hr />
+											<p class="text-muted mb-2">Control optional Logbook menu links for QSL Cards and SSTV Images.</p>
+											<div class="form-check form-switch mb-2">
+												<input name="user_menu_show_qsl_cards" class="form-check-input" type="checkbox" role="switch" id="ShowQslCardsInMenuCheck" <?php if (!isset($menu_show_qsl_cards) || $menu_show_qsl_cards) {
+													echo 'checked';
+												} ?>>
+												<label class="form-check-label" for="ShowQslCardsInMenuCheck">Show "View QSL Cards" in Logbook menu</label>
+											</div>
+											<div class="form-check form-switch">
+												<input name="user_menu_show_sstv_images" class="form-check-input" type="checkbox" role="switch" id="ShowSstvImagesInMenuCheck" <?php if (isset($menu_show_sstv_images) && $menu_show_sstv_images) {
+													echo 'checked';
+												} ?>>
+												<label class="form-check-label" for="ShowSstvImagesInMenuCheck">Show "View SSTV Images" in Logbook menu</label>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -936,6 +951,7 @@
 									</div>
 								</div>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -1155,20 +1171,6 @@
 									</div>
 								</div>
 
-								<div class="col-md">
-									<div class="card">
-										<div class="card-header">Storage Options</div>
-										<div class="card-body">
-											<p class="text-muted mb-2">Control optional image-related menu links.</p>
-											<div class="form-check form-switch">
-												<input name="user_menu_show_sstv_images" class="form-check-input" type="checkbox" role="switch" id="ShowSstvImagesInMenuCheck" <?php if (isset($menu_show_sstv_images) && $menu_show_sstv_images) {
-													echo 'checked';
-												} ?>>
-												<label class="form-check-label" for="ShowSstvImagesInMenuCheck">Show "View SSTV Images" in Logbook menu</label>
-											</div>
-										</div>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>

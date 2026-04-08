@@ -430,6 +430,11 @@ class User_Model extends CI_Model {
 		$CI =& get_instance();
         $CI->load->model('user_options_model');
         $callbook_type_object = $CI->user_options_model->get_options('callbook')->result();
+		$show_qsl_cards_option = $CI->user_options_model->get_options(
+			'menu',
+			array('option_name' => 'show_qsl_cards', 'option_key' => 'enabled'),
+			$id
+		)->row();
 		$show_sstv_images_option = $CI->user_options_model->get_options(
 			'menu',
 			array('option_name' => 'show_sstv_images', 'option_key' => 'enabled'),
@@ -459,6 +464,10 @@ class User_Model extends CI_Model {
 
 		$u = $this->get_by_id($id);
 		$has_eqsl_credentials = ($u->row()->user_eqsl_name != '' && $u->row()->user_eqsl_password != '');
+		$show_qsl_cards = true;
+		if (isset($show_qsl_cards_option->option_value)) {
+			$show_qsl_cards = ($show_qsl_cards_option->option_value == 'true');
+		}
 		$show_sstv_images = false;
 		if (isset($show_sstv_images_option->option_value)) {
 			$show_sstv_images = ($show_sstv_images_option->option_value == 'true');
@@ -475,6 +484,7 @@ class User_Model extends CI_Model {
 			'user_eqsl_name'	 => $u->row()->user_eqsl_name,
 			'user_eqsl_qth_nickname' => $u->row()->user_eqsl_qth_nickname,
 			'has_eqsl_credentials' => $has_eqsl_credentials,
+			'user_show_qsl_cards' => $show_qsl_cards,
 			'user_show_sstv_images' => $show_sstv_images,
 			'user_hash'		 => $this->_hash($u->row()->user_id."-".$u->row()->user_type),
 			'radio' => isset($_COOKIE["radio"])?$_COOKIE["radio"]:"",
