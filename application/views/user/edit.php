@@ -37,16 +37,7 @@
 
 	<?php $this->load->helper('form'); ?>
 	<style>
-		.user_edit {
-			--gh-border: var(--bs-border-color, #dee2e6);
-			--gh-muted: var(--bs-secondary-color, #6c757d);
-			--gh-bg-subtle: var(--bs-tertiary-bg, #f8f9fa);
-		}
 
-		.settings-nav .list-group-item {
-			cursor: pointer;
-			margin-bottom: 0.4rem;
-		}
 
 		@media (min-width: 992px) {
 			.settings-nav {
