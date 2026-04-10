@@ -1189,10 +1189,11 @@ $("#callsign").focusout(function() {
 				if($('#iota_ref').val() == "") {
 					$('#iota_ref').val(result.callsign_iota);
 				}
-				// Show lookup details and keep the default previous contacts table hidden.
-				setPreviousContactsPanelState(true);
 				/* display past QSOs */
-				$('#partial_view').html(result.partial);
+				var partialHtml = (typeof result.partial === 'string') ? result.partial : '';
+				$('#partial_view').html(partialHtml);
+				// Toggle panel state deterministically based on whether lookup returned details.
+				setPreviousContactsPanelState(partialHtml.trim() !== '');
 				// Get DXX Summary
 				getDxccResult(result.dxcc.adif, convert_case(result.dxcc.entity));
 			}
@@ -1215,6 +1216,7 @@ function setPreviousContactsPanelState(showLookupDetails) {
 
 	$('#qso-last-table').show();
 	$('#qso-last-table').next('small').show();
+	$('#partial_view').html('');
 	$('#partial_view').hide();
 }
 
@@ -1244,7 +1246,7 @@ if (typeof htmx !== 'undefined' && document.body) {
 			return;
 		}
 
-		if ($('#partial_view').is(':visible') && $('#partial_view').html().trim() !== '') {
+		if ($('#partial_view').html().trim() !== '') {
 			setPreviousContactsPanelState(true);
 		}
 	});
