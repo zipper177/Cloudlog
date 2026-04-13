@@ -1046,8 +1046,8 @@ $("#callsign").focusout(function() {
 			previousContactsLookupMode = true;
 			pauseAutoRefresh();
 
-			// Reset QSO fields
-			resetDefaultQSOFields();
+			// Reset QSO fields but keep current DXCC badge/country to avoid flicker.
+			resetDefaultQSOFields(true);
 
 			if(result.dxcc.entity != undefined) {
 				$('#country').val(convert_case(result.dxcc.entity));
@@ -1110,7 +1110,7 @@ $("#callsign").focusout(function() {
 					if (dok_selectize) dok_selectize.clear();
 				}
 
-				$('#dxcc_id').val(result.dxcc.adif).trigger('change');
+				$('#dxcc_id').val(result.dxcc.adif);
 				$('#cqz').val(result.dxcc.cqz);
 				$('#ituz').val(result.dxcc.ituz);
 
@@ -1718,7 +1718,7 @@ function quickLookupDxcc(callsign) {
 			$('#country').val(convert_case(result.dxcc.entity));
 			$('#callsign_info').text(convert_case(result.dxcc.entity));
 			changebadge(result.dxcc.entity);
-			$('#dxcc_id').val(result.dxcc.adif).trigger('change');
+			$('#dxcc_id').val(result.dxcc.adif);
 			$('#cqz').val(result.dxcc.cqz);
 			$('#ituz').val(result.dxcc.ituz);
 		}
@@ -1758,7 +1758,26 @@ $("#callsign").keyup(function() {
   });
 
 //Reset QSO form Fields function
-function resetDefaultQSOFields() {
+function resetDefaultQSOFields(preserveDxccState) {
+	var keepDxcc = preserveDxccState === true;
+	var preservedCountry = '';
+	var preservedCallsignInfoText = '';
+	var preservedCallsignInfoTitle = '';
+	var preservedCallsignInfoClass = '';
+	var preservedDxccId = '';
+	var preservedCqz = '';
+	var preservedItuz = '';
+
+	if (keepDxcc) {
+		preservedCountry = $('#country').val();
+		preservedCallsignInfoText = $('#callsign_info').text();
+		preservedCallsignInfoTitle = $('#callsign_info').attr('title') || '';
+		preservedCallsignInfoClass = $('#callsign_info').attr('class') || '';
+		preservedDxccId = $('#dxcc_id').val();
+		preservedCqz = $('#cqz').val();
+		preservedItuz = $('#ituz').val();
+	}
+
 	$('#callsign_info').text("");
 	$('#locator_info').text("");
 	$('#country').val("");
@@ -1771,6 +1790,7 @@ function resetDefaultQSOFields() {
 	$('#hamqth_info').text("");
 	$('#dxcc_id').val("").trigger('change');
 	$('#cqz').val("");
+	$('#ituz').val("");
 	$("#locator").removeClass("workedGrid");
 	$("#locator").removeClass("confirmedGrid");
 	$("#locator").removeClass("newGrid");
@@ -1784,6 +1804,16 @@ function resetDefaultQSOFields() {
 	$('#callsign-image-content').text("");
 	$('.dxccsummary').remove();
 	$('#timesWorked').html(lang_qso_title_previous_contacts);
+
+	if (keepDxcc) {
+		$('#country').val(preservedCountry);
+		$('#callsign_info').text(preservedCallsignInfoText);
+		$('#callsign_info').attr('title', preservedCallsignInfoTitle);
+		$('#callsign_info').attr('class', preservedCallsignInfoClass);
+		$('#dxcc_id').val(preservedDxccId);
+		$('#cqz').val(preservedCqz);
+		$('#ituz').val(preservedItuz);
+	}
 }
 
 function closeModal() {
