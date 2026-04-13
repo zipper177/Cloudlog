@@ -1268,15 +1268,15 @@
         });
       }
 
-      // Sync cluster band filter to follow the QSO form's band when a radio is selected
+      // Sync cluster band filter to follow the QSO form's band
       this.syncBandFromRadio();
 
-      // Follow band changes on the QSO form (only when a radio is active)
+      // Follow band changes on the QSO form
       $('#band').on('change.qsoCluster', function() {
         self.syncBandFromRadio();
       });
 
-      // When radio selection changes, re-sync (switches to All if set to None)
+      // When radio selection changes, re-sync
       $('#radio').on('change.qsoCluster', function() {
         self.syncBandFromRadio();
       });
@@ -1470,11 +1470,6 @@
 
     syncBandFromRadio: function() {
       if (!this.trackBand) return;
-      var radioVal = $('#radio').val();
-      if (!radioVal || radioVal === '0') {
-        this.setBandFilter('all');
-        return;
-      }
       var band = $('#band').val();
       if (band) { this.setBandFilter(band); }
     },
